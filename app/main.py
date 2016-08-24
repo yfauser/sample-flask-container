@@ -22,14 +22,32 @@
 # AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.”
 
-from flask import Flask, render_template
+from flask import Flask, render_template, request, Response
 import commands
 import netifaces
+import socket
+from netaddr import IPNetwork
 
 __author__ = 'yfauser'
 
 app = Flask(__name__)
 HOSTNAME = commands.getoutput("hostname")
+
+
+def host_scan(host, start_port, end_port):
+    open_ports = []
+    for port in range(start_port, end_port):
+        try:
+            tcp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            tcp_socket.settimeout(0.01)
+            tcp_socket.connect((host, port))
+            tcp_socket.close()
+            open_ports.append(port)
+        except (socket.timeout, socket.error) as e:
+            tcp_socket.close()
+
+    return open_ports
+
 
 def get_ip():
     for iface in netifaces.interfaces():
@@ -45,6 +63,28 @@ def hello():
     host = {'hostname': HOSTNAME, 'ip': IP}
     return render_template('index.html', title='Home', host=host)
 
+@app.route("/scan")
+def port_scan():
+    return render_template("port-scan.html")
+
+
+@app.route("/scan", methods=['POST'])
+def port_scan_post():
+
+    network = request.form.get('network')
+    host_range = IPNetwork(network).iter_hosts()
+    start_port = int(request.form.get('start_port'))
+    end_port = int(request.form.get('end_port'))
+
+    def scan_hosts():
+        scan_result = []
+        for host in host_range:
+            host_result = host_scan(str(host), start_port, end_port)
+            scan_result.append({'host_ip': str(host), 'open_ports': host_result})
+            yield 'Scan of Host: {}, open ports: {} \n\n'.format(host, host_result)
+
+    return Response(scan_hosts(), mimetype= 'text/event-stream')
+
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', debug=True, port=80)
+    app.run(host='0.0.0.0', debug=False, threaded=True, port=80)

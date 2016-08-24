@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<body>
+    <h2>Port Scan App</h2>
+    <form action="/scan" method="POST">
+        Network to scan:<br>
+        <input type="text" name="network" value="10.1.0.0/29">
+        <br>
+        Start Port:<br>
+        <input type="int" name="start_port" value="1">
+        <br>
+        End Port:<br>
+        <input type="int" name="end_port" value="99">
+        <br>
+        <input type="submit" name="scan" value="Send">
+    </form>
+</body>
+</html>
