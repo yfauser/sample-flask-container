@@ -29,7 +29,7 @@ import netifaces
 __author__ = 'yfauser'
 
 app = Flask(__name__)
-HOSTNAME = commands.getoutput("hostname -f")
+HOSTNAME = commands.getoutput("hostname")
 
 def get_ip():
     for iface in netifaces.interfaces():
