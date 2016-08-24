@@ -1,0 +1,1 @@
+# Sample Flask Container shoing its hostname and private IP for NSX Demos
