@@ -92,7 +92,8 @@ def port_scan_post():
             scan_result.append({'host_ip': str(host), 'open_ports': host_result})
             yield 'Scan of Host: {}, open ports: {} \n\n'.format(host, host_result)
 
-    return Response(scan_hosts(), mimetype= 'text/event-stream')
+    return Response(scan_hosts(), mimetype= 'text/event-stream',
+                    headers={'Cache-Control': 'no-cache, no-store, must-revalidate'})
 
 
 @app.route("/debug")
