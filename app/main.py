@@ -53,7 +53,7 @@ def ping_host(host):
     return commands.getoutput('ping -c5 {}'.format(host))
 
 
-PING_HOST = '10.114.209.33'
+PING_HOST = '10.114.209.73'
 PING_RESULT = ping_host(PING_HOST)
 
 
