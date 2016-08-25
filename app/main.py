@@ -49,12 +49,21 @@ def host_scan(host, start_port, end_port):
     return open_ports
 
 
+def ping_host(host):
+    return commands.getoutput('ping -c5 {}'.format(host))
+
+
+PING_HOST = '10.114.209.33'
+PING_RESULT = ping_host(PING_HOST)
+
+
 def get_ip():
     for iface in netifaces.interfaces():
         if iface in ['nsx0', 'eth0', 'en5']:
             return netifaces.ifaddresses(iface)[netifaces.AF_INET][0]['addr']
 
 IP = get_ip()
+
 
 @app.route("/")
 @app.route("/index")
@@ -84,6 +93,13 @@ def port_scan_post():
             yield 'Scan of Host: {}, open ports: {} \n\n'.format(host, host_result)
 
     return Response(scan_hosts(), mimetype= 'text/event-stream')
+
+
+@app.route("/debug")
+def debug_get():
+    output = 'Result of startup Ping:\n\n {}'.format(PING_RESULT)
+
+    return Response(output, mimetype='text')
 
 
 if __name__ == "__main__":
